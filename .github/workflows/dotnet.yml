@@ -38,5 +38,5 @@ jobs:
 
     - name: push to nuget
       run: |
-          dotnet nuget push ${{github.workspace}}/src/RSCG_Utils/RSCG_Utils/PACK/*symb*.*pkg --api-key  ${{ secrets.NUGETAPIKEY }} --source https://api.nuget.org/v3/index.json
+          dotnet nuget push ${{github.workspace}}/src/SkinnyControllers/PACK/*symb*.*pkg --api-key  ${{ secrets.NUGETAPIKEY }} --source https://api.nuget.org/v3/index.json
 
