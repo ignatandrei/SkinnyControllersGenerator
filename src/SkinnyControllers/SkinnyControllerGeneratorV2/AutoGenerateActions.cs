@@ -1,15 +1,17 @@
-﻿using System.Xml.Linq;
+﻿using System.Collections.Generic;
 
 namespace SkinnyControllerGeneratorV2;
+
 [Generator]
 public class AutoGenerateActions : IIncrementalGenerator
 {
     string autoActions = typeof(AutoActionsAttribute).Name;
-
+    string autoActionsFullName= typeof(AutoActionsAttribute).FullName;
+    static string endFileName = "controller.txt";
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var classTypes = context.SyntaxProvider
-                             .ForAttributeWithMetadataName("SkinnyControllersCommon.AutoActionsAttribute",
+                             .ForAttributeWithMetadataName(autoActionsFullName,
                                                            ItIsOnClass,
                                                            GetClassInfo)
                              .Where(it=>it.IsValid())
@@ -18,7 +20,7 @@ public class AutoGenerateActions : IIncrementalGenerator
                                ; 
 
         var templates = context.AdditionalTextsProvider
-                                .Where(text => text.Path.EndsWith("controller.txt", StringComparison.OrdinalIgnoreCase))
+                                .Where(text => text.Path.EndsWith(endFileName, StringComparison.OrdinalIgnoreCase))
                                 .Select((text, token) =>new AdditionalFilesText (  text.Path, text.GetText(token)?.ToString()) )
                                 .Where(text => text.IsValid())
                                 .Collect();
@@ -29,22 +31,23 @@ public class AutoGenerateActions : IIncrementalGenerator
 
     private void GenerateCode(SourceProductionContext arg1, (ImmutableArray<DataGenerator> Left, ImmutableArray<AdditionalFilesText> Right) arg2)
     {
-        var dg=arg2.Left.Distinct();
+        var dg=arg2.Left.Distinct().ToArray();
         var files = arg2.Right;
+        GenerateCode1(arg1, dg, files);
     }
 
-    private void GenerateCode1(SourceProductionContext context, ImmutableArray<(INamedTypeSymbol, ClassDeclarationSyntax)> arg2)
+    private void GenerateCode1(SourceProductionContext context, DataGenerator[] arg2, ImmutableArray<AdditionalFilesText> files)
     {
         var executing = Assembly.GetExecutingAssembly();
         foreach (var item in arg2)
         {
-            var cds = item.Item2;
+            var cds = item.Cds;
             if (!IsPartial(cds))
             {
                 context.ReportDiagnostic(DoDiagnostic(DiagnosticSeverity.Error, "please add partial declaration"));
                 continue;
             }
-            var myController = item.Item1;
+            var myController = item.Nts;
             string? Namespace = myController.ContainingNamespace.IsGlobalNamespace ? null : myController.ContainingNamespace.ToString();
             var att = myController.GetAttributes().FirstOrDefault(it => it.AttributeClass.Name == autoActions);
             if(att == null)
@@ -126,18 +129,21 @@ public class AutoGenerateActions : IIncrementalGenerator
                         context.ReportDiagnostic(DoDiagnostic(DiagnosticSeverity.Info, $"class {myController.Name} has no template "));
                         continue;
                     case TemplateIndicator.CustomTemplateFile:
-
-                        var file = context.AdditionalFiles.FirstOrDefault(it => it.Path.EndsWith(templateCustom));
+                        if(!templateCustom.EndsWith(endFileName))
+                        {
+                            context.ReportDiagnostic(DoDiagnostic(DiagnosticSeverity.Error, $"template {templateCustom} must end in {endFileName}"));
+                        }
+                        var file = files.FirstOrDefault(it => it.Name.EndsWith(templateCustom));
                         if (file == null)
                         {
                             context.ReportDiagnostic(DoDiagnostic(DiagnosticSeverity.Error, $"cannot find {templateCustom} for  {myController.Name} . Did you put in AdditionalFiles in csproj ?"));
                             continue;
                         }
-                        post = file.GetText().ToString();
+                        post = file.Contents.ToString();
                         break;
 
                     default:
-                        using (var stream = executing.GetManifestResourceStream($"SkinnyControllersGenerator.templates.{templateId}.txt"))
+                        using (var stream = executing.GetManifestResourceStream($"SkinnyControllersGeneratorV2.templates.{templateId}.txt"))
                         {
                             using var reader = new StreamReader(stream);
                             post = reader.ReadToEnd();
@@ -146,7 +152,7 @@ public class AutoGenerateActions : IIncrementalGenerator
                         break;
                 }
 
-                string classSource = ProcessClass(myController, memberFields, post);
+                string classSource = ProcessClass(context,myController, memberFields, post);
                 if (string.IsNullOrWhiteSpace(classSource))
                     continue;
 
@@ -160,7 +166,116 @@ public class AutoGenerateActions : IIncrementalGenerator
             }
         }
     }
+    private MethodDefinition[] ProcessField(SourceProductionContext context, IFieldSymbol fieldSymbol)
+    {
 
+        var ret = new Dictionary<string, MethodDefinition>();
+        var code = new StringBuilder();
+        string fieldName = fieldSymbol.Name;
+        var fieldType = fieldSymbol.Type;
+        var members = fieldType.GetMembers().OfType<IMethodSymbol>();
+
+
+        foreach (var m in members)
+        {
+            if (m.IsStatic)
+                continue;
+
+            if (m.Kind != SymbolKind.Method)
+            {
+                context.ReportDiagnostic(DoDiagnostic(DiagnosticSeverity.Warning, $"{m.Name} is not a method ? "));
+                continue;
+
+            }
+
+            var ms = m as IMethodSymbol;
+            if (ms is null)
+            {
+                context.ReportDiagnostic(DoDiagnostic(DiagnosticSeverity.Warning, $"{m.Name} is not a IMethodSymbol"));
+                continue;
+
+            }
+            if (ms.DeclaredAccessibility != Accessibility.Public)
+                continue;
+            if (ms.MethodKind != MethodKind.Ordinary)
+                continue;
+
+            if ((ms.Name == fieldName || ms.Name == ".ctor") && ms.ReturnsVoid)
+                continue;
+
+            var md = new MethodDefinition();
+            md.Name = ms.Name;
+            md.RegisteredName = md.Name;
+            md.FieldName = fieldName;
+            md.ReturnsVoid = ms.ReturnsVoid;
+            md.Original = ms;
+            md.IsAsync = ms.IsAsync;
+            if (!md.IsAsync)
+            {
+                md.IsAsync = (ms.ReturnType?.BaseType?.Name == "Task");
+            }
+            md.ReturnType = ms.ReturnType.ToString();
+            md.Parameters = ms.Parameters.ToDictionary(it => it.Name, it => it.Type);
+            //if 2 method have same names, generate different actions
+            int i = 0;
+            string name = md.RegisteredName;
+            //DoDiagnostic(DiagnosticSeverity.Error, "Andrei_" + name);
+            if (name.EndsWith("Async"))
+            {
+                md.Name = name.Substring(0, name.Length - "Async".Length);
+                //DoDiasgnostic(DiagnosticSeverity.Error,"Andrei_" + name);
+            }
+
+            while (ret.ContainsKey(md.Name))
+            {
+                i++;
+                //same name for the method ... let's modify the name
+                md.Name = name + i;
+            }
+            ret.Add(md.Name, md);
+
+        }
+        if (ret.Count == 0)
+        {
+            context.ReportDiagnostic(DoDiagnostic(DiagnosticSeverity.Warning,
+                $"could not find methods on {fieldName} from {fieldSymbol.ContainingType?.Name}"));
+        }
+        return ret.Values.ToArray();
+    }
+    private string ProcessClass(SourceProductionContext context, INamedTypeSymbol classSymbol, IFieldSymbol[] fields, string post)
+    {
+
+
+        //if (!classSymbol.ContainingSymbol.Equals(classSymbol.ContainingNamespace, SymbolEqualityComparer.Default))
+        //{
+        //    context.ReportDiagnostic(DoDiagnostic(DiagnosticSeverity.Warning, $"class {classSymbol.Name} is in other namespace; please put directly "));
+        //    return null;
+        //}
+
+        string namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
+        var cd = new ClassDefinition();
+        cd.NamespaceName = namespaceName;
+        cd.ClassName = classSymbol.Name;
+        cd.Original = classSymbol;
+        if (fields.Length == 0)
+        {
+            context.ReportDiagnostic(DoDiagnostic(DiagnosticSeverity.Warning, $"class {cd.ClassName} has {fields.Length} fields to process"));
+        }
+        cd.DictNameField_Methods = fields
+            .SelectMany(it => ProcessField(context,it))
+            .GroupBy(it => it.FieldName)
+            .ToDictionary(it => it.Key, it => it.ToArray());
+
+
+        if (cd.DictNameField_Methods.Count == 0)
+        {
+            context.ReportDiagnostic(DoDiagnostic(DiagnosticSeverity.Warning, $"class {cd.ClassName} has 0 fields to process"));
+        }
+        var template = Scriban.Template.Parse(post);
+        var output = template.Render(cd, member => member.Name);
+        return output;
+
+    }
     static Diagnostic DoDiagnostic(DiagnosticSeverity ds, string message)
     {
         //info  could be seen only with 
@@ -171,7 +286,13 @@ public class AutoGenerateActions : IIncrementalGenerator
     }
     private static bool ItIsOnClass(SyntaxNode syntaxNode, CancellationToken cancellationToken)
     {
-        return syntaxNode is ClassDeclarationSyntax classDeclaration;
+        if (syntaxNode is not ClassDeclarationSyntax classDeclaration)
+            return false;
+        if (!IsPartial(classDeclaration))
+            return false;
+        if (classDeclaration.AttributeLists.Count== 0) return false;
+       
+        return true;
     }
     
     public static bool IsPartial(ClassDeclarationSyntax classDeclaration)
@@ -181,50 +302,32 @@ public class AutoGenerateActions : IIncrementalGenerator
     private static DataGenerator GetClassInfo(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
     {
         var type = context.TargetSymbol as INamedTypeSymbol;
+        if (type == null)
+            return null;
         var cds = context.TargetNode as ClassDeclarationSyntax;
+        if (cds == null)
+            return null;
+
         return new DataGenerator(type,cds);
     }
 
    
 }
-class DataGenerator : IEquatable<DataGenerator>
-{
-    public DataGenerator(INamedTypeSymbol nts, ClassDeclarationSyntax cds)
-    {
-        Nts = nts;
-        Cds = cds;
-    }
 
-    public INamedTypeSymbol Nts { get; }
-    public ClassDeclarationSyntax Cds { get; }
-
-    public bool Equals(DataGenerator other)
-    {
-        if (ReferenceEquals(null, other))
-            return false;
-        if (ReferenceEquals(this, other))
-            return true;
-
-        return Nts?.Name == other.Nts?.Name;
-    }
-    public bool IsValid()
-    {
-        return Nts != null && Cds != null;
-    }
-}
 public class AdditionalFilesText
 {
-    public AdditionalFilesText(string name, string contents)
+    public AdditionalFilesText(string Name, string Contents)
     {
-        Name = name;
-        Contents = contents;
+        this.Name = Name;
+        this.Contents = Contents;
     }
 
     public string Name { get; }
     public string Contents { get; }
+
     public bool IsValid()
     {
-        return !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Contents); 
+        return !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Contents);
     }
 }
 

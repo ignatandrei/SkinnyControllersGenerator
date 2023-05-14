@@ -10,3 +10,4 @@ global using Microsoft.CodeAnalysis.Text;
 global using System.IO;
 global using System.Reflection;
 global using System.Text;
+global using System.Xml.Linq;
