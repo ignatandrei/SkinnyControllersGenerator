@@ -12,7 +12,7 @@
 
   </ItemGroup>
   <ItemGroup>
-    <AdditionalFiles Include="Controllers\CustomTemplate1.txt" />
+    <AdditionalFiles Include="Controllers\CustomTemplate1.controller.txt" />
   </ItemGroup>
 	<PropertyGroup>
 		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
@@ -20,7 +20,7 @@
 
 	</PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SkinnyControllerGeneratorV2\SkinnyControllerGeneratorV2.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\SkinnyControllerGeneratorV2\SkinnyControllerGeneratorV2.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\SkinnyControllersCommon\SkinnyControllersCommon.csproj" />
     <!--<ProjectReference Include="..\SkinnyControllersGenerator\SkinnyControllersGenerator.csproj" OutputItemType="Analyzer" />-->
   </ItemGroup>

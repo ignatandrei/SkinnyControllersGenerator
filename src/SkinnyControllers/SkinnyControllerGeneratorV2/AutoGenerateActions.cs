@@ -144,7 +144,8 @@ public class AutoGenerateActions : IIncrementalGenerator
                         break;
 
                     default:
-                        using (var stream = executing.GetManifestResourceStream($"SkinnyControllersGeneratorV2.templates.{templateId}.txt"))
+                        var nameTemplate = $"SkinnyControllerGeneratorV2.templates.{templateId}.txt";
+                        using (var stream = executing.GetManifestResourceStream(nameTemplate))
                         {
                             using var reader = new StreamReader(stream);
                             post = reader.ReadToEnd();

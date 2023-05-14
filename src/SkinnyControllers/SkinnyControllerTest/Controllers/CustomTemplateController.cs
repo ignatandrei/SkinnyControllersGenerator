@@ -15,7 +15,7 @@ namespace SkinnyControllerTest.Controllers
     ///<AdditionalFiles Include = "Controllers\\CustomTemplate1.txt" />
     ///</ItemGroup >
     /// </summary>
-    [AutoActions(template = TemplateIndicator.CustomTemplateFile, FieldsName = new[] { "*" } ,CustomTemplateFileName = "Controllers\\CustomTemplate1.txt")]
+    [AutoActions(template = TemplateIndicator.CustomTemplateFile, FieldsName = new[] { "*" } ,CustomTemplateFileName = "Controllers\\CustomTemplate1.controller.txt")]
     [Route("api/[controller]/[action]")]
     [ApiController]
     public partial class CustomTemplateController : ControllerBase

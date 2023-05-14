@@ -51,8 +51,8 @@ You can choose your template from
 3. Rest action
 
 You can add your template in 2 ways:
-
-1. [AutoActions(template = TemplateIndicator.CustomTemplateFile, FieldsName = new[] { "*" } ,CustomTemplateFileName = "Controllers\\CustomTemplate1.txt")]
+//must end in controller.txt
+1. [AutoActions(template = TemplateIndicator.CustomTemplateFile, FieldsName = new[] { "*" } ,CustomTemplateFileName = "Controllers\\CustomTemplate1.controller.txt")]
 
 2. For creating new generic templates, please PR to https://github.com/ignatandrei/AOP_With_Roslyn
 
