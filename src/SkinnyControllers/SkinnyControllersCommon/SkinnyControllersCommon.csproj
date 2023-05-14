@@ -39,5 +39,11 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SkinnyControllerGeneratorV2\SkinnyControllerGeneratorV2.csproj"
+					  PrivateAssets="contentfiles;build"
+							SetTargetFramework="TargetFramework=netstandard2.0"/>
+
+  </ItemGroup>
 
 </Project>
