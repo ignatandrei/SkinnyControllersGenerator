@@ -13,6 +13,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\SkinnyControllersCommon\AutoActionsAttribute.cs" Link="AutoActionsAttribute.cs" />
+	  <Compile Include="..\SkinnyControllersCommon\TemplateIndicator.cs" Link="TemplateIndicator.cs" />
   </ItemGroup>
 
   <ItemGroup>

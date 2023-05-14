@@ -16,9 +16,6 @@
 	  <None Remove="templates\TryCatchLogging.txt" />
 	</ItemGroup>
 	<ItemGroup>
-		<Compile Include="..\SkinnyControllersCommon\AutoActionsAttribute.cs" Link="AutoActionsAttribute.cs" />
-	</ItemGroup>
-	<ItemGroup>
 	  <EmbeddedResource Include="templates\AllPost.txt" />
 	  <EmbeddedResource Include="templates\AllPostWithRecord.txt" />
 	  <EmbeddedResource Include="templates\NoArgs_Is_Get_Else_Post.txt" />

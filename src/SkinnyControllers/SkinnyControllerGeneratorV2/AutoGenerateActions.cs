@@ -5,8 +5,8 @@ namespace SkinnyControllerGeneratorV2;
 [Generator]
 public class AutoGenerateActions : IIncrementalGenerator
 {
-    string autoActions = typeof(AutoActionsAttribute).Name;
-    string autoActionsFullName= typeof(AutoActionsAttribute).FullName;
+    string autoActions = "AutoActionsAttribute";//typeof(AutoActionsAttribute).Name;
+    string autoActionsFullName = "SkinnyControllersCommon.AutoActionsAttribute";//typeof(AutoActionsAttribute).FullName;
     static string endFileName = "controller.txt";
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -55,12 +55,13 @@ public class AutoGenerateActions : IIncrementalGenerator
                 context.ReportDiagnostic(DoDiagnostic(DiagnosticSeverity.Error, "cannot find attribute on "+myController.Name));
                 continue;
             }
-            var template = att.NamedArguments.First(it => it.Key == "template")
+            var namedArgs = att.NamedArguments;
+            var template = namedArgs.First(it => it.Key == "template")
                     .Value
                     .Value
                     .ToString();
             var templateId = (TemplateIndicator)long.Parse(template);
-            var fields = att.NamedArguments.First(it => it.Key == "FieldsName")
+            var fields = namedArgs.First(it => it.Key == "FieldsName")
                 .Value
                 .Values
                 .Select(it => it.Value?.ToString())
@@ -69,7 +70,7 @@ public class AutoGenerateActions : IIncrementalGenerator
             string[] excludeFields = null;
             try
             {
-                excludeFields = att.NamedArguments.FirstOrDefault(it => it.Key == "ExcludeFields")
+                excludeFields = namedArgs.FirstOrDefault(it => it.Key == "ExcludeFields")
                     .Value
                     .Values
                     .Select(it => it.Value?.ToString())
