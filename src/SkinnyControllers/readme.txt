@@ -1,6 +1,6 @@
 ﻿What it does SkinnyControllersCommon/SkinnyControllersGenerator
 
-Read this better at https://github.com/ignatandrei/AOP_With_Roslyn/tree/master/SkinnyControllers
+Read this better at https://github.com/ignatandrei/SkinnyControllersGenerator/tree/master/SkinnyControllers
 
 
 SkinnyControllers generates controller action for each field of your controller 
@@ -51,10 +51,10 @@ You can choose your template from
 3. Rest action
 
 You can add your template in 2 ways:
-//must end in controller.txt
+//if custom template , hte name must end in controller.txt
 1. [AutoActions(template = TemplateIndicator.CustomTemplateFile, FieldsName = new[] { "*" } ,CustomTemplateFileName = "Controllers\\CustomTemplate1.controller.txt")]
 
-2. For creating new generic templates, please PR to https://github.com/ignatandrei/AOP_With_Roslyn
+2. For creating new generic templates, please PR to https://github.com/ignatandrei/SkinnyControllersGenerator
 
 That's all!
 

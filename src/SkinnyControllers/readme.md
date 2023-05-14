@@ -1,6 +1,6 @@
 What it does SkinnyControllersCommon/SkinnyControllersGenerator
 
-Read this better at https://github.com/ignatandrei/AOP_With_Roslyn/tree/master/SkinnyControllers
+Read this better at https://github.com/ignatandrei/SkinnyControllersGenerator/tree/master/SkinnyControllers
 
 Video at https://youtu.be/eNvt4Vq2PuY
 
@@ -51,7 +51,7 @@ You can choose your template from
 2. Get - if not arguments, POST else
 3. Rest action
 
-You can add your template by making a PR to https://github.com/ignatandrei/AOP_With_Roslyn/tree/master/SkinnyControllers
+You can add your template by making a PR to https://github.com/ignatandrei/SkinnyControllersGenerator/tree/master/SkinnyControllers
 
 That's all!
 

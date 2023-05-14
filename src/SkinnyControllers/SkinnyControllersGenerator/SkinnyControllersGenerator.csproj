@@ -39,8 +39,8 @@
     <Version>2021.25.6.855</Version>
     <Authors>Andrei Ignat</Authors>
     <PackageTags>RoslynCodeGenerators;C#;CSharp;SkinnyControllers</PackageTags>
-    <PackageProjectUrl>https://github.com/ignatandrei/AOP_With_Roslyn/tree/master/SkinnyControllers</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/ignatandrei/AOP_With_Roslyn</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/ignatandrei/SkinnyControllersGenerator/tree/master/SkinnyControllers</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ignatandrei/SkinnyControllersGenerator</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
     <Copyright>MIT</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
