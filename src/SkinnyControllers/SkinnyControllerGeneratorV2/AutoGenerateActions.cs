@@ -13,18 +13,24 @@ public class AutoGenerateActions : IIncrementalGenerator
                                                            ItIsOnClass,
                                                            GetClassInfo)
                              .Where(it=>it.IsValid())
-                             .Collect();
+                             .Collect()
+                             //.SelectMany((enumInfos, _) => enumInfos.Distinct())
+                               ; 
+
         var templates = context.AdditionalTextsProvider
-                                .Select((text, token) =>new { name = text.Path, text = text.GetText(token)?.ToString() })
-                                .Where(text => text?.text is not null)!
+                                .Where(text => text.Path.EndsWith("controller.txt", StringComparison.OrdinalIgnoreCase))
+                                .Select((text, token) =>new AdditionalFilesText (  text.Path, text.GetText(token)?.ToString()) )
+                                .Where(text => text.IsValid())
                                 .Collect();
-        context.RegisterSourceOutput(classTypes.Combine(templates).SelectMany(), GenerateCode);
+
+        context.RegisterSourceOutput(classTypes.Combine(templates), GenerateCode);
 
     }
 
-    private void GenerateCode(SourceProductionContext arg1, (ImmutableArray<(INamedTypeSymbol, ClassDeclarationSyntax)>, ImmutableArray<object>) arg2)
+    private void GenerateCode(SourceProductionContext arg1, (ImmutableArray<DataGenerator> Left, ImmutableArray<AdditionalFilesText> Right) arg2)
     {
-        throw new NotImplementedException();
+        var dg=arg2.Left.Distinct();
+        var files = arg2.Right;
     }
 
     private void GenerateCode1(SourceProductionContext context, ImmutableArray<(INamedTypeSymbol, ClassDeclarationSyntax)> arg2)
@@ -206,4 +212,20 @@ class DataGenerator : IEquatable<DataGenerator>
         return Nts != null && Cds != null;
     }
 }
+public class AdditionalFilesText
+{
+    public AdditionalFilesText(string name, string contents)
+    {
+        Name = name;
+        Contents = contents;
+    }
+
+    public string Name { get; }
+    public string Contents { get; }
+    public bool IsValid()
+    {
+        return !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Contents); 
+    }
+}
+
 
