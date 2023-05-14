@@ -31,7 +31,7 @@ jobs:
     - name: Build with dotnet
       run: |
         cd src
-        cd RSCG_Utils
+        cd SkinnyControllers
         dotnet tool restore
         dotnet r pack
 
