@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	  <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Description>
+      ** C# 9.0 ONLY **
+      Autogenerates actions to a controller from a class .
+      ( replace below single quotes with double quotes)
+      [AutoActions(template = TemplateIndicator.AllPost,FieldsName =new[] { '*' }, ExcludeFields =new[]{'_logger'})]
+      [ApiController]
+      [Route('[controller]/[action]')]
+      public partial class WeatherForecastController : ControllerBase{
+      // it will generate for this field
+      private readonly RepositoryWF repository;
+
+      Add also Nuget package SkinnyControllersGenerator
+      You can have your own template - read the readme.txt
+    </Description>
+    <Version>2021.25.6.855</Version>
+    <Authors>Andrei Ignat</Authors>
+    <PackageTags>RoslynCodeGenerators;C#;CSharp;SkinnyControllers</PackageTags>
+    <PackageProjectUrl>https://github.com/ignatandrei/AOP_With_Roslyn/tree/master/SkinnyControllers</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ignatandrei/AOP_With_Roslyn</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>MIT</Copyright>
+    
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
+    
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../readme.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
