@@ -33,7 +33,8 @@ jobs:
         cd src
         cd SkinnyControllers
         dotnet tool restore
-        dotnet r pack
+        dotnet r packV2
+        dotnet r packCommon
 
     - name: push to nuget
       run: |

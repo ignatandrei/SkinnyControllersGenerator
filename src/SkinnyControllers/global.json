@@ -5,6 +5,8 @@
     "test": "dotnet test --configuration Release",
     "ci": "dotnet r build && dotnet r test",
     "prepack":"dotnet r build",
-    "pack":"dotnet pack --configuration Release --include-source  --include-symbols --no-build -o PACK"
+    "packCommon":"pushd SkinnyControllersCommon && dotnet pack --configuration Release --include-source  --include-symbols --no-build -o ../PACK && popd",
+	"packV2":"pushd SkinnyControllerGeneratorV2 && dotnet pack --configuration Release --include-source  --include-symbols --no-build -o ../PACK && popd"
+	
   }
 }
