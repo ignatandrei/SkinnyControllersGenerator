@@ -66,3 +66,8 @@ Answer:
 Did you put partial on the controller declaration ? 
 
 public partial class 
+
+
+# More Roslyn Source Code Generators
+
+You can find more RSCG with examples at [Roslyn Source Code Generators](https://ignatandrei.github.io/RSCG_Examples/v2/)
